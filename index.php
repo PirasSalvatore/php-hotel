@@ -39,7 +39,37 @@
         ],
 
     ];
+    // Filter hotels based on user input
 
+    $filteredHotels = [];
+    $filterParking = $_GET['parking'] ?? null;
+    $filterVote = $_GET['vote'] ? (int)$_GET['vote'] : null;
+
+    foreach ($hotels as $hotel) {
+        $includeHotel = true;
+
+        // Check for parking filter
+
+        if ($filterParking) {
+            if ($hotel['parking'] === true) {
+                $includeHotel = true;
+            } else {
+                $includeHotel = false;
+            }
+        }
+
+        // Check for vote filter
+        if ($filterVote) {
+            if ($hotel['vote'] >= $filterVote) {
+                $includeHotel = true;
+            } else {
+                $includeHotel = false;
+            }
+        }
+
+
+        $includeHotel ? $filteredHotels[] = $hotel : null;
+    }
 ?>
 
 <!doctype html>
@@ -53,7 +83,28 @@
 <title>PHP Hotel</title>
 </head>
 
-<body>
+<body class='bg-secondary-subtle'>
+
+<div class="container">
+    <form method="get">
+        <div class="form-container row g-3 mb-5 mt-3 justify-content-center align-items-center ">
+
+        <div class="col-2 mb-3 text-center">
+            <label for="parking" class="form-label me-1">Parcheggio </label>
+            <input class="form-check-input" id="parking" name="parking" type="checkbox" value="true"/>
+        </div>
+
+        <div class="col-2 mb-3 d-flex align-items-center">
+            <span class="input-group-text bg-transparent" id="vote-label">Voto minimo</span>
+            <input type="text" class="form-control" id="vote" name="vote" min="1" max="5" aria-describedby="vote-label">
+        </div>
+
+        <div class="col-2 mb-3 text-center">
+            <button type="submit" class="btn btn-primary">Filtra</button>
+        </div>
+        </div>
+    </form>
+</div>
 
 <section>
     <div class="container">
@@ -71,7 +122,7 @@
             </thead>
             <tbody>
                 <?php
-                    foreach ($hotels as $hotel){
+                    foreach ($filteredHotels as $hotel){
                         echo "<tr>";
                             foreach ($hotel as $key => $value) {
                                 if ($key === 'parking') {
